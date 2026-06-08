@@ -3,352 +3,250 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI TTS 음성 변환기</title>
+  <title>⚡ 자취방 AI 멀티탭 가드</title>
   <style>
     * { box-sizing: border-box; }
-
     body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #e3f2fd, #fce4ec);
-      font-family: Arial, sans-serif;
-      color: #333;
+      margin: 0; min-height: 100vh;
+      background: linear-gradient(135deg, #eceff1, #cfd8dc);
+      font-family: 'Malgun Gothic', sans-serif; color: #333;
     }
-
     .container {
-      width: min(900px, 92%);
-      margin: 40px auto;
-      background: #ffffff;
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.16);
+      width: min(1000px, 95%); margin: 40px auto;
+      background: #ffffff; border-radius: 24px; padding: 28px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     }
-
-    h1 {
-      margin: 0 0 8px;
-      text-align: center;
-      font-size: 28px;
+    h1 { text-align: center; margin: 0 0 5px; color: #1a237e; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 15px; }
+    
+    /* 대시보드 레이아웃 */
+    .dashboard {
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;
     }
-
-    .subtitle {
-      text-align: center;
-      color: #777;
-      margin-bottom: 24px;
-      font-size: 14px;
+    .panel {
+      background: #f8f9fa; border-radius: 20px; padding: 20px; border: 1px solid #e0e0e0;
     }
+    .panel-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #283593; }
 
-    .info {
-      padding: 14px;
-      margin-bottom: 20px;
-      border-radius: 14px;
-      background: #e8f5e9;
-      color: #2e7d32;
-      font-size: 14px;
-      line-height: 1.6;
+    /* 멀티탭 스타일 */
+    .multitap {
+      display: flex; flex-direction: column; gap: 12px;
     }
-
-    .option-box {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
+    .socket {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #ffffff; padding: 16px; border-radius: 14px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.03); border-left: 5px solid #b0bec5;
     }
-
-    select, input {
-      height: 44px;
-      padding: 0 12px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      font-size: 14px;
-      outline: none;
+    .socket.active { border-left-color: #ff7043; background: #fff5f2; }
+    .device-info { display: flex; flex-direction: column; gap: 4px; }
+    .device-name { font-weight: bold; font-size: 16px; }
+    .device-meta { font-size: 13px; color: #666; }
+    
+    /* 토글 스위치 */
+    .switch {
+      position: relative; display: inline-block; width: 60px; height: 34px;
     }
-
-    textarea {
-      width: 100%;
-      min-height: 180px;
-      resize: vertical;
-      padding: 16px;
-      border: 1px solid #ddd;
-      border-radius: 16px;
-      font-size: 16px;
-      line-height: 1.5;
-      outline: none;
-      font-family: Arial, sans-serif;
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 34px;
     }
-
-    textarea:focus, select:focus, input:focus {
-      border-color: #42a5f5;
-      box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.15);
+    .slider:before {
+      position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px;
+      background-color: white; transition: .4s; border-radius: 50%;
     }
+    input:checked + .slider { background-color: #ff7043; }
+    input:checked + .slider:before { transform: translateX(26px); }
 
-    .label {
-      font-weight: bold;
-      margin-bottom: 6px;
+    /* 진단 영역 스타일 */
+    .btn-diagnose {
+      width: 100%; height: 50px; background: #283593; color: white;
+      border: none; border-radius: 12px; font-size: 16px; font-weight: bold;
+      cursor: pointer; transition: 0.2s; margin-bottom: 15px;
     }
-
-    .button-row {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      margin-top: 14px;
+    .btn-diagnose:hover { background: #1a237e; }
+    .btn-diagnose:disabled { background: #9fa8da; cursor: not-allowed; }
+    
+    .ai-response {
+      background: white; padding: 15px; border-radius: 12px;
+      min-height: 100px; border: 1px dashed #9fa8da; font-size: 15px; line-height: 1.6;
     }
-
-    button, .download-link {
-      border: none;
-      border-radius: 12px;
-      padding: 0 18px;
-      height: 46px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.15s;
-      font-weight: bold;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .status { margin-top: 10px; font-size: 13px; color: #e65100; font-weight: bold; }
+    
+    /* TTS 설정 */
+    .tts-options {
+      margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
     }
+    select { height: 36px; border-radius: 8px; padding: 0 8px; border: 1px solid #ccc; }
 
-    button:hover, .download-link:hover {
-      transform: translateY(-2px);
-      opacity: 0.9;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-      transform: none;
-    }
-
-    .make-btn {
-      background: #42a5f5;
-      color: white;
-    }
-
-    .clear-btn {
-      background: #b0bec5;
-      color: white;
-    }
-
-    .download-link {
-      background: #7e57c2;
-      color: white;
-    }
-
-    .hidden { display: none; }
-
-    .status {
-      min-height: 24px;
-      margin-top: 14px;
-      color: #555;
-      font-size: 14px;
-    }
-
-    .result-box {
-      margin-top: 20px;
-      padding: 18px;
-      border-radius: 18px;
-      background: #f7f9fb;
-      border: 1px solid #edf1f5;
-    }
-
-    audio {
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    .help {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #777;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 700px) {
-      .option-box { grid-template-columns: 1fr; }
-      .button-row { justify-content: stretch; }
-      button, .download-link { width: 100%; }
+    @media (max-width: 800px) {
+      .dashboard { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+
   <div class="container">
-    <h1>AI TTS 음성 변환기</h1>
-    <div class="subtitle">텍스트를 AI 음성 mp3 파일로 변환합니다</div>
+    <h1>⚡ Multi-Guard</h1>
+    <div class="subtitle">자취방 실시간 전력 상태 모니터링 및 AI 가드</div>
 
-    <div class="info">
-      현재 구조: GitHub Pages 화면 → Google Apps Script 서버 → OpenAI TTS API → mp3 음성 반환<br />
-      API Key는 index.html에 들어가지 않고 Apps Script의 스크립트 속성에 저장됩니다.
-    </div>
-
-    <div class="option-box">
-      <select id="modelSelect">
-        <option value="tts-1">tts-1 빠른 생성</option>
-        <option value="tts-1-hd">tts-1-hd 고품질</option>
-      </select>
-
-      <select id="voiceSelect">
-        <option value="alloy">alloy</option>
-        <option value="echo">echo</option>
-        <option value="fable">fable</option>
-        <option value="onyx">onyx</option>
-        <option value="nova">nova</option>
-        <option value="shimmer">shimmer</option>
-      </select>
-
-      <input id="speedInput" type="number" min="0.25" max="4.0" step="0.05" value="1.0" placeholder="속도" />
-    </div>
-
-    <div>
-      <div class="label">변환할 텍스트</div>
-      <textarea id="textInput" placeholder="음성으로 바꿀 문장을 입력하세요. 예: 안녕하세요. 오늘은 Firebase와 OpenAI API를 활용한 웹페이지 제작을 배워보겠습니다."></textarea>
-    </div>
-
-    <div class="button-row">
-      <button class="clear-btn" id="clearBtn">초기화</button>
-      <button class="make-btn" id="makeBtn">음성 만들기</button>
-    </div>
-
-    <div id="status" class="status"></div>
-
-    <div id="resultBox" class="result-box hidden">
-      <div class="label">생성된 음성</div>
-      <audio id="audioPlayer" controls></audio>
-      <div class="button-row">
-        <a id="downloadLink" class="download-link" href="#" download="tts-audio.mp3">mp3 다운로드</a>
+    <div class="dashboard">
+      <div class="panel">
+        <div class="panel-title">🔌 우리집 멀티탭 소켓 상태</div>
+        <div class="multitap" id="multitapBox">
+          </div>
       </div>
-    </div>
 
-    <div class="help">
-      긴 문장은 생성 시간이 오래 걸릴 수 있습니다. 처음에는 짧은 문장으로 테스트해보세요.<br />
-      속도는 0.25부터 4.0까지 조절할 수 있습니다.
+      <div class="panel">
+        <div class="panel-title">🤖 AI 스마트 전력 안전 요원</div>
+        <button class="btn-diagnose" id="diagnoseBtn">AI 실시간 전력 진단하기</button>
+        
+        <div class="ai-response" id="aiResponseBox">
+          진단 버튼을 누르면 AI 관리자가 가전제품 상태를 분석하여 전력 효율과 화재 위험을 진단해 줍니다.
+        </div>
+        <div class="status" id="statusText"></div>
+
+        <div class="tts-options">
+          <select id="voiceSelect">
+            <option value="alloy">목소리: Alloy (기본)</option>
+            <option value="echo">목소리: Echo (부드러운)</option>
+            <option value="nova">목소리: Nova (여성 톤)</option>
+            <option value="onyx">목소리: Onyx (남성 톤)</option>
+          </select>
+          <audio id="audioPlayer" controls style="width: 100%; height: 36px;"></audio>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
+    // ⚠️ [중요] 본인의 배포된 Google Apps Script Web App URL을 여기에 넣어야 작동합니다!
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzvCeCidpIBm3Ez_AbmzTRrvzCkPa_7x-irAazDPzljPmuqjjHZOqXxfyS1vNh7tX1/exec';
 
-    const textInput = document.getElementById('textInput');
-    const modelSelect = document.getElementById('modelSelect');
+    // 가전제품 가상 데이터 리스트 (추후 Firebase Firestore와 연동될 데이터 구조)
+    const appliances = [
+      { id: 'device1', name: '🛌 전기장판', power: 150, time: 6, checked: true },
+      { id: 'device2', name: '🖥️ 게이밍 컴퓨터', power: 350, time: 2, checked: true },
+      { id: 'device3', name: '📱 스마트폰 충전기', power: 25, time: 5, checked: false },
+      { id: 'device4', name: '💨 주방 환풍기', power: 80, time: 12, checked: false }
+    ];
+
+    const multitapBox = document.getElementById('multitapBox');
+    const diagnoseBtn = document.getElementById('diagnoseBtn');
+    const aiResponseBox = document.getElementById('aiResponseBox');
+    const statusText = document.getElementById('statusText');
     const voiceSelect = document.getElementById('voiceSelect');
-    const speedInput = document.getElementById('speedInput');
-    const makeBtn = document.getElementById('makeBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const statusBox = document.getElementById('status');
-    const resultBox = document.getElementById('resultBox');
     const audioPlayer = document.getElementById('audioPlayer');
-    const downloadLink = document.getElementById('downloadLink');
 
-    makeBtn.addEventListener('click', makeSpeech);
-    clearBtn.addEventListener('click', clearPage);
+    // 화면에 멀티탭 소켓 UI 그리기
+    function renderMultitap() {
+      multitapBox.innerHTML = '';
+      appliances.forEach((app) => {
+        const div = document.createElement('div');
+        div.className = `socket ${app.checked ? 'active' : ''}`;
+        div.innerHTML = `
+          <div class="device-info">
+            <div class="device-name">${app.name}</div>
+            <div class="device-meta">소비전력: ${app.power}W | 가동시간: ${app.time}시간째</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="${app.id}" ${app.checked ? 'checked' : ''} onchange="toggleDevice('${app.id}')">
+            <span class="slider"></span>
+          </label>
+        `;
+        multitapBox.appendChild(div);
+      });
+    }
 
-    textInput.addEventListener('keydown', function(event) {
-      if (event.key === 'Enter' && event.ctrlKey) {
-        makeSpeech();
+    // 스위치 클릭 시 ON/OFF 상태 변경
+    window.toggleDevice = function(id) {
+      const device = appliances.find(app => app.id === id);
+      if (device) {
+        device.checked = !device.checked;
+        renderMultitap();
       }
-    });
+    };
 
-    async function makeSpeech() {
-      const text = textInput.value.trim();
-      const model = modelSelect.value;
-      const voice = voiceSelect.value;
-      const speed = Number(speedInput.value || 1.0);
-
-      if (!text) {
-        alert('음성으로 변환할 텍스트를 입력해주세요.');
+    // AI 진단 요청 및 TTS 재생
+    async function startDiagnosis() {
+      const activeDevices = appliances.filter(app => app.checked);
+      if (activeDevices.length === 0) {
+        aiResponseBox.textContent = "현재 켜져 있는 가전제품이 없습니다. 멀티탭 스위치를 켜주세요!";
         return;
       }
 
-      if (speed < 0.25 || speed > 4.0) {
-        alert('속도는 0.25부터 4.0 사이로 입력해주세요.');
-        return;
-      }
-
+      // AI에게 보낼 데이터 문자열 압축
+      let deviceSummary = activeDevices.map(d => `[${d.name}: ON, 소비전력 ${d.power}W, ${d.time}시간째 작동 중]`).join(', ');
+      
       try {
         setLoading(true);
-        resultBox.classList.add('hidden');
-        statusBox.textContent = 'Apps Script 서버에 TTS 요청을 보내는 중입니다.';
+        statusText.textContent = "⚡ AI 분석관이 전력 상태를 진단하는 중입니다...";
+        
+        // 1. AI 텍스트 분석 요청
+        const aiResponse = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ type: 'analyze', question: deviceSummary })
+        });
+        const aiData = await aiResponse.json();
+        if (aiData.error) throw new Error(aiData.error);
+        
+        const aiTxtResult = aiData.answer;
+        aiResponseBox.textContent = aiTxtResult;
 
-        const response = await fetch(APPS_SCRIPT_URL, {
+        // 2. 받은 AI 답변으로 TTS 음성 생성 요청
+        statusText.textContent = "🔊 진단 결과를 음성 가이드로 변환하고 있습니다...";
+        const ttsResponse = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify({
             type: 'tts',
-            text: text,
-            model: model,
-            voice: voice,
-            speed: speed
+            text: aiTxtResult,
+            model: 'tts-1',
+            voice: voiceSelect.value,
+            speed: 1.0
           })
         });
+        const ttsData = await ttsResponse.json();
+        if (ttsData.error) throw new Error(ttsData.error);
 
-        const data = await response.json();
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        if (!data.audioBase64) {
-          throw new Error('음성 데이터를 받지 못했습니다.');
-        }
-
-        const audioUrl = base64ToAudioUrl(data.audioBase64, 'audio/mpeg');
-
+        // 3. 음성 파일 재생
+        const audioUrl = base64ToAudioUrl(ttsData.audioBase64, 'audio/mpeg');
         audioPlayer.src = audioUrl;
-        downloadLink.href = audioUrl;
-        downloadLink.download = makeFileName();
-        resultBox.classList.remove('hidden');
-        statusBox.textContent = '음성 생성 완료';
-      } catch (error) {
-        console.error(error);
-        statusBox.textContent = '요청 실패';
-        alert('오류가 발생했습니다.\n\n' + error.message);
+        audioPlayer.play();
+        
+        statusText.textContent = "✅ 진단 완료! 가이드 방송을 재생합니다.";
+      } catch (err) {
+        console.error(err);
+        alert("오류 발생: " + err.message);
+        statusText.textContent = "❌ 요청 실패";
       } finally {
         setLoading(false);
       }
     }
 
+    // Base64 오디오 변환 유틸 함수
     function base64ToAudioUrl(base64, mimeType) {
       const byteCharacters = atob(base64);
       const byteArrays = [];
-
       for (let offset = 0; offset < byteCharacters.length; offset += 512) {
         const slice = byteCharacters.slice(offset, offset + 512);
         const byteNumbers = new Array(slice.length);
-
         for (let i = 0; i < slice.length; i++) {
           byteNumbers[i] = slice.charCodeAt(i);
         }
-
         const byteArray = new Uint8Array(byteNumbers);
         byteArrays.push(byteArray);
       }
-
       const blob = new Blob(byteArrays, { type: mimeType });
       return URL.createObjectURL(blob);
     }
 
-    function makeFileName() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hour = String(now.getHours()).padStart(2, '0');
-      const minute = String(now.getMinutes()).padStart(2, '0');
-      return `tts-${year}${month}${day}-${hour}${minute}.mp3`;
-    }
-
     function setLoading(isLoading) {
-      makeBtn.disabled = isLoading;
-      makeBtn.textContent = isLoading ? '생성 중...' : '음성 만들기';
+      diagnoseBtn.disabled = isLoading;
+      diagnoseBtn.textContent = isLoading ? '진단서 작성 중...' : 'AI 실시간 전력 진단하기';
     }
 
-    function clearPage() {
-      textInput.value = '';
-      statusBox.textContent = '';
-      audioPlayer.removeAttribute('src');
-      downloadLink.href = '#';
-      resultBox.classList.add('hidden');
-    }
+    diagnoseBtn.addEventListener('click', startDiagnosis);
+    renderMultitap(); // 앱 초기화 시 화면 그리기
   </script>
 </body>
 </html>
-
