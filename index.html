@@ -41,7 +41,6 @@
     .add-btn { background: #42a5f5; color: white; }
     .quiz-btn { background: #10b981; color: white; width: 100%; height: 50px; font-size: 16px; }
     .refresh-btn { background: #66bb6a; color: white; width: 100%; margin-bottom: 16px; }
-    .edit-btn { background: #ffca28; color: #333; height: 34px; font-size: 12px; border-radius: 6px; }
     .delete-btn { background: #ef5350; color: white; height: 34px; font-size: 12px; border-radius: 6px; }
     
     .status { min-height: 24px; margin-bottom: 14px; color: #666; font-size: 13px; font-style: italic; text-align: center; }
@@ -109,7 +108,7 @@
               <input id="titleInput" type="text" placeholder="정답 작품명" />
               <input id="hintInput" type="text" placeholder="힌트" />
             </div>
-            <textarea id="scriptInput" placeholder="AI 성우가 읽을 명대사를 입력하세요."></textarea>
+            <textarea id="scriptInput" placeholder="AI 성우가 실감나게 연기할 명대사를 입력하세요."></textarea>
             <input id="urlInput" type="text" placeholder="포스터 이미지 주소(URL) - 생략 가능" />
             <button class="add-btn" id="addBtn">문제 은행에 추가</button>
           </div>
@@ -138,8 +137,8 @@
       appId: "1:866053556740:web:7718ed6285994f969a8351"
     };
 
-    // 🔗 새로 주신 구글 웹앱 주소로 완벽히 교체 완료했습니다!
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYeA4uPAs8TbGonv305UdKnvDPUvSvi_nmU_fhQZTwWIdAhz70JFxKha7L_-UhvSLj/exec';
+    // 🔗 유저님이 방금 새로 보내주신 구글 스크립트 주소로 깔끔하게 교체했습니다!
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpFUcZFRvgDSmEAPLvySVgs_W_rEr_fe5d6B7wkPs26TI8XREUOaf0tskA2j_hP8vZ/exec';
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -225,6 +224,28 @@
       }
     };
 
+    // 🕹️ 핵심 기능: 인덱스 순서대로 살아있는 키를 탐색 요청하는 하이브리드 통신부
+    async function requestWithRetry(payloadObj) {
+      // 6개의 키 중 살아있는 녀석을 찾을 때까지 프론트앤드 레벨에서 순차 인덱스 검사 요청을 보냅니다.
+      for (let keyIdx = 0; keyIdx < 6; keyIdx++) {
+        try {
+          payloadObj.keyIndex = keyIdx; // 스크립트 측에 몇 번째 키를 쓸지 알려주는 변수 주입
+          const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payloadObj)
+          });
+          const resData = await response.json();
+          if (resData.success) {
+            return resData; // 성공하면 즉시 리턴하고 종료
+          }
+          console.warn(`${keyIdx + 1}번째 키 실패, 다음 키로 우회 시도...`, resData.error);
+        } catch (e) {
+          console.error(`${keyIdx + 1}번째 키 통신 예외 발생`, e);
+        }
+      }
+      throw new Error("모든 API 키가 만료되었거나 차단되었습니다.");
+    }
+
     // AI 문제 출제 및 TTS 결합 엔진
     startBtn.addEventListener('click', async () => {
       const keys = Object.keys(globalQuizPool);
@@ -243,28 +264,21 @@
         speakerIcon.classList.add('playing');
         quizPromptText.textContent = 'ChatGPT가 대사의 대본 감정선을 극적으로 분석하고 있습니다...';
 
-        // 1. ChatGPT 연동
-        const chatResponse = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ type: 'chat', question: `대사: "${currentQuiz.script}"` })
+        // 1. ChatGPT 연동 (우회 탐색 요청)
+        const chatData = await requestWithRetry({ 
+          type: 'chat', 
+          question: `대사: "${currentQuiz.script}"` 
         });
-        const chatData = await chatResponse.json();
-        if(!chatData.success) throw new Error(chatData.error);
 
-        // 2. TTS 연동
+        // 2. TTS 연동 (우회 탐색 요청)
         quizPromptText.textContent = '🔊 분석 완료! AI 성우가 녹음실 부스에서 명대사 연기를 시작합니다...';
-        const ttsResponse = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({
-            type: 'tts',
-            text: chatData.answer,
-            voice: document.getElementById('voiceSelect').value
-          })
+        const ttsData = await requestWithRetry({
+          type: 'tts',
+          text: chatData.answer,
+          voice: document.getElementById('voiceSelect').value
         });
-        const ttsData = await ttsResponse.json();
-        if(!ttsData.success) throw new Error(ttsData.error);
 
-        // 오디오 정상 출력
+        // 오디오 정상 출력 바인딩
         audioPlayer.src = `data:audio/mpeg;base64,${ttsData.audioBase64}`;
         speakerIcon.textContent = '📢';
         quizPromptText.innerHTML = '<strong>🔊 성우 연기 송출 중! 들려오는 대사의 영화/드라마 제목을 맞춰보세요.</strong>';
@@ -276,7 +290,7 @@
 
       } catch (err) {
         console.error(err);
-        quizPromptText.textContent = '❌ 시스템 장애가 발생했습니다. OpenAI API 키 혹은 스크립트 배포 상태를 검사하세요.';
+        quizPromptText.textContent = '❌ 시스템 장애가 발생했습니다. 구글 스크립트 코드 내부의 키 리스트나 크레딧 상태를 점검하세요.';
         speakerIcon.textContent = '❌';
       } finally {
         startBtn.disabled = false;
