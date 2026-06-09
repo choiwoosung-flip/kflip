@@ -3,246 +3,308 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎬 AI 시네마 사운드 아카이브</title>
+  <title>🎙️ AI 시네마 사운드 퀴즈 & 아카이브</title>
   <style>
-    :root { --primary: #1e88e5; --secondary: #7e57c2; --bg: #f0f2f5; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #e3f2fd, #fce4ec); font-family: 'Pretendard', sans-serif; color: #333; }
+    body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #e3f2fd, #fce4ec); font-family: Arial, sans-serif; color: #333; }
     .container { width: min(1000px, 94%); margin: 40px auto; background: #ffffff; border-radius: 24px; padding: 28px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.16); }
-    h1 { text-align: center; color: var(--primary); margin-bottom: 5px; }
-    .subtitle { text-align: center; color: #777; margin-bottom: 30px; font-size: 14px; }
-
-    /* 🔐 로그인 섹션 */
-    .auth-box { max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-    input { height: 48px; padding: 0 16px; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; outline: none; }
-    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1); }
-    button { border: none; border-radius: 12px; height: 48px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 15px; }
-    button:hover { transform: translateY(-2px); opacity: 0.9; }
-    .btn-login { background: var(--primary); color: white; }
-    .btn-signup { background: var(--secondary); color: white; }
-
-    /* 🕹️ 메인 레이아웃 (2단 구성) */
-    .main-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 20px; }
-    .stage-card { background: #f8fafc; border-radius: 20px; padding: 25px; border: 1px solid #e2e8f0; }
-    .collection-card { background: #ffffff; border-radius: 20px; padding: 25px; border: 1px solid #e2e8f0; }
-
-    /* 🔊 사운드 구역 */
-    .audio-box { background: white; border: 2px dashed var(--primary); border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px; }
-    .speaker-icon { font-size: 50px; display: inline-block; }
-    .playing { animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-    /* 📜 컬렉션 리스트 */
-    .list-item { background: #f1f5f9; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; border-left: 4px solid var(--secondary); }
-    .list-item strong { color: var(--secondary); }
-    .scroll-area { max-height: 400px; overflow-y: auto; }
-
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #f1f5f9; padding: 10px 20px; border-radius: 15px; }
-    .hidden { display: none; }
-    .btn-action { width: 100%; margin-bottom: 15px; background: #10b981; color: white; height: 55px; font-size: 17px; }
-    .btn-submit { background: var(--primary); color: white; width: 80px; }
-    .btn-logout { background: #455a64; color: white; height: 35px; font-size: 12px; padding: 0 15px; }
+    h1 { margin: 0 0 8px; text-align: center; font-size: 28px; color: #1e88e5; }
+    .subtitle { text-align: center; color: #777; margin-bottom: 28px; font-size: 14px; }
     
-    .report { display: none; margin-top: 15px; padding: 15px; background: white; border-radius: 12px; border: 1px solid #ddd; text-align: center; }
+    .auth-box { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .app-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; }
+    .game-section { background: #f8fafc; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; }
+    .audio-room { background: #ffffff; border: 2px dashed #42a5f5; border-radius: 18px; padding: 24px; text-align: center; margin-bottom: 20px; }
+    .speaker-icon { font-size: 48px; margin-bottom: 8px; display: inline-block; transition: 0.3s; }
+    .playing { animation: pulse 1.5s infinite ease-in-out; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+    
+    .audio-controls { margin-top: 12px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    select { height: 38px; padding: 0 8px; border: 1px solid #ddd; border-radius: 8px; background: white; font-size: 14px; }
+    .answer-zone { display: flex; gap: 10px; margin-top: 8px; }
+    .answer-zone input { flex: 1; }
+    .game-report { display: none; margin-top: 20px; padding: 16px; background: white; border: 1px solid #edf1f5; border-radius: 14px; text-align: center; }
+    .game-report img { max-width: 180px; border-radius: 8px; margin-top: 10px; }
 
-    @media (max-width: 850px) { .main-grid { grid-template-columns: 1fr; } }
+    .form-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; background: #f1f5f9; padding: 16px; border-radius: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 22px; padding: 14px; border-radius: 16px; background: #f7f9fb; }
+    
+    input, textarea { height: 46px; padding: 0 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; outline: none; background: white; }
+    textarea { height: 70px; padding: 10px 14px; resize: none; font-family: Arial, sans-serif; }
+    button { border: none; border-radius: 12px; padding: 0 16px; height: 46px; font-size: 14px; cursor: pointer; transition: 0.15s; font-weight: bold; }
+    button:hover { transform: translateY(-2px); opacity: 0.9; }
+
+    .login-btn { background: #42a5f5; color: white; }
+    .signup-btn { background: #7e57c2; color: white; }
+    .logout-btn { background: #455a64; color: white; height: 38px; }
+    .add-btn { background: #42a5f5; color: white; }
+    .quiz-btn { background: #10b981; color: white; width: 100%; height: 50px; font-size: 16px; }
+    .refresh-btn { background: #66bb6a; color: white; width: 100%; margin-bottom: 16px; }
+    .edit-btn { background: #ffca28; color: #333; height: 34px; font-size: 12px; border-radius: 6px; }
+    .delete-btn { background: #ef5350; color: white; height: 34px; font-size: 12px; border-radius: 6px; }
+    
+    .status { min-height: 24px; margin-bottom: 14px; color: #666; font-size: 13px; font-style: italic; text-align: center; }
+    .list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
+    .item { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .label { font-weight: bold; margin-bottom: 6px; font-size: 14px; color: #475569; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>🎙️ AI 시네마 명대사 퀴즈 & 아카이브</h1>
+    <div class="subtitle">Firebase 연동 + 로그인 활성화 + OpenAI ChatGPT & TTS 엔진 통합본</div>
 
-<div class="container">
-  <h1>🎙️ AI 시네마 사운드 아카이브</h1>
-  <div class="subtitle">나만의 주제: AI 성우가 들려주는 영화 속 명장면 수집하기</div>
+    <section id="authSection">
+      <div class="auth-box">
+        <h2>로그인 / 회원가입</h2>
+        <input id="emailInput" type="email" placeholder="이메일 주소" />
+        <input id="passwordInput" type="password" placeholder="비밀번호 (6자리 이상)" />
+        <button class="login-btn" id="loginBtn">로그인</button>
+        <button class="signup-btn" id="signupBtn">회원가입</button>
+      </div>
+    </section>
 
-  <section id="authSection">
-    <div class="auth-box">
-      <h2>로그인 / 회원가입</h2>
-      <input id="emailInput" type="email" placeholder="이메일 주소" />
-      <input id="passwordInput" type="password" placeholder="비밀번호 (6자리 이상)" />
-      <button class="btn-login" id="loginBtn">로그인</button>
-      <button class="btn-signup" id="signupBtn">회원가입</button>
-    </div>
-  </section>
+    <section id="mainSection" class="hidden">
+      <div class="top-bar">
+        <div class="user-info">🎬 안녕하세요, <strong id="userEmail" style="color:#1e88e5;"></strong> 회원님!</div>
+        <button class="logout-btn" id="logoutBtn">로그아웃</button>
+      </div>
 
-  <section id="mainSection" class="hidden">
-    <div class="top-bar">
-      <div>🎬 <strong><span id="userEmail"></span></strong> 회원님의 아카이브</div>
-      <button class="btn-logout" id="logoutBtn">로그아웃</button>
-    </div>
+      <div class="app-grid">
+        <div class="game-section">
+          <div class="label" style="font-size:16px; color:#10b981; margin-bottom:12px;">🎮 QUIZ STAGE</div>
+          <button class="quiz-btn" id="startBtn">🎲 내 문제 은행에서 AI 출제하기</button>
 
-    <div class="main-grid">
-      <div class="stage-card">
-        <button class="btn-action" id="startBtn">🎲 AI 무작위 퀴즈 출제</button>
-        <div class="audio-box">
-          <div class="speaker-icon" id="speakerIcon">🤫</div>
-          <p id="promptText" style="font-size: 14px; color: #666;">버튼을 누르면 AI가 문제를 생성합니다.</p>
-          <div style="margin-top: 10px;">
-            <select id="voiceSelect" style="width: 100%; height: 35px; margin-bottom: 10px; border-radius: 8px;">
-              <option value="echo">목소리: Echo (감성적)</option>
-              <option value="onyx">목소리: Onyx (중후한)</option>
-              <option value="nova">목소리: Nova (발랄한)</option>
-            </select>
-            <audio id="audioPlayer" controls style="width: 100%;"></audio>
+          <div class="audio-room">
+            <div class="speaker-icon" id="speakerIcon">🤫</div>
+            <div id="quizPromptText" style="font-size: 14px; color: #666;">문제를 출제하면 데이터베이스에 등록된 대사를 바탕으로 AI가 연기를 시작합니다.</div>
+            
+            <div class="audio-controls">
+              <select id="voiceSelect">
+                <option value="echo">성우 톤: Echo (부드러운 감성파)</option>
+                <option value="onyx">성우 톤: Onyx (중후한 액션배우)</option>
+                <option value="nova">성우 톤: Nova (통통 튀는 여성조)</option>
+                <option value="alloy">성우 톤: Alloy (안정적인 목소리)</option>
+              </select>
+              <audio id="audioPlayer" controls style="height:38px;"></audio>
+            </div>
           </div>
+
+          <div>
+            <div class="label">정답 맞추기</div>
+            <div class="answer-zone">
+              <input id="userInput" type="text" placeholder="들려온 대사의 작품 제목을 쓰세요!" disabled />
+              <button class="add-btn" id="submitBtn" disabled>제출</button>
+            </div>
+          </div>
+          <div id="gameReport" class="game-report"></div>
         </div>
-        <div style="display: flex; gap: 8px;">
-          <input id="userInput" type="text" placeholder="정답을 입력하세요" style="flex:1" disabled />
-          <button class="btn-submit" id="submitBtn" disabled>제출</button>
+
+        <div class="admin-section">
+          <div class="label" style="font-size:16px; color:#1e88e5; margin-bottom:12px;">🏛️ 나만의 퀴즈 데이터베이스 (CRUD)</div>
+          <div class="form-box">
+            <div class="form-row">
+              <input id="titleInput" type="text" placeholder="정답 작품명" />
+              <input id="hintInput" type="text" placeholder="힌트" />
+            </div>
+            <textarea id="scriptInput" placeholder="AI 성우가 읽을 명대사를 입력하세요."></textarea>
+            <input id="urlInput" type="text" placeholder="포스터 이미지 주소(URL) - 생략 가능" />
+            <button class="add-btn" id="addBtn">문제 은행에 추가</button>
+          </div>
+
+          <button class="refresh-btn" id="refreshBtn">🔄 실시간 데이터 동기화</button>
+          <div id="status" class="status"></div>
+          <div id="dataList" class="list"></div>
         </div>
-        <div id="gameReport" class="report"></div>
       </div>
+    </section>
+  </div>
 
-      <div class="collection-card">
-        <h3 style="margin-top: 0; color: var(--secondary);">📚 내가 수집한 명대사</h3>
-        <p style="font-size: 12px; color: #888;">정답을 맞히면 자동으로 이곳에 저장됩니다.</p>
-        <div id="dataList" class="scroll-area">
-          <div class="empty">수집된 명대사가 없습니다.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getDatabase, ref, push, set, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-<script type="module">
-  // 파이어베이스 모듈 로드
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-  import { getDatabase, ref, push, set, onValue } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+    // 파이어베이스 계정 정보 바인딩
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVc6dxlL8wI2q9qkJZJTFA7VFzwxqb0XY",
+      authDomain: "k-flip.firebaseapp.com",
+      databaseURL: "https://k-flip-default-rtdb.firebaseio.com",
+      projectId: "k-flip",
+      storageBucket: "k-flip.firebasestorage.app",
+      messagingSenderId: "866053556740",
+      appId: "1:866053556740:web:7718ed6285994f969a8351"
+    };
 
-  // 1. Firebase 설정 (본인 정보)
-  const firebaseConfig = {
-    apiKey: "AIzaSyCVc6dxlL8wI2q9qkJZJTFA7VFzwxqb0XY",
-    authDomain: "k-flip.firebaseapp.com",
-    databaseURL: "https://k-flip-default-rtdb.firebaseio.com",
-    projectId: "k-flip",
-    storageBucket: "k-flip.firebasestorage.app",
-    messagingSenderId: "866053556740",
-    appId: "1:866053556740:web:7718ed6285994f969a8351"
-  };
+    // 🔗 새로 주신 구글 웹앱 주소로 완벽히 교체 완료했습니다!
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYeA4uPAs8TbGonv305UdKnvDPUvSvi_nmU_fhQZTwWIdAhz70JFxKha7L_-UhvSLj/exec';
 
-  // 2. Google Apps Script URL (AI & TTS API 연동)
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOYv2GwcTvZZoahyXv5Hu8vqjCdGreulkiVv13dVrJBVGJEM1dFiJgdjkQHpCYsrIo/exec';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const database = getDatabase(app);
+    // DOM 선택자
+    const authSection = document.getElementById('authSection'), mainSection = document.getElementById('mainSection');
+    const emailInput = document.getElementById('emailInput'), passwordInput = document.getElementById('passwordInput');
+    const loginBtn = document.getElementById('loginBtn'), signupBtn = document.getElementById('signupBtn'), logoutBtn = document.getElementById('logoutBtn'), userEmail = document.getElementById('userEmail');
+    const titleInput = document.getElementById('titleInput'), hintInput = document.getElementById('hintInput'), scriptInput = document.getElementById('scriptInput'), urlInput = document.getElementById('urlInput'), addBtn = document.getElementById('addBtn'), refreshBtn = document.getElementById('refreshBtn'), dataList = document.getElementById('dataList'), statusBox = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn'), userInput = document.getElementById('userInput'), submitBtn = document.getElementById('submitBtn'), speakerIcon = document.getElementById('speakerIcon'), quizPromptText = document.getElementById('quizPromptText'), audioPlayer = document.getElementById('audioPlayer'), gameReport = document.getElementById('gameReport');
 
-  let currentUser = null;
-  let currentQuiz = null;
+    let currentUser = null, currentItemsRef = null, globalQuizPool = {}, currentQuiz = null;
 
-  // --- [인증 기능: Authentication] ---
-  const loginBtn = document.getElementById('loginBtn');
-  const signupBtn = document.getElementById('signupBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
+    function setStatus(msg) { statusBox.textContent = msg; }
 
-  signupBtn.addEventListener('click', async () => {
-    const email = document.getElementById('emailInput').value;
-    const pw = document.getElementById('passwordInput').value;
-    try { await createUserWithEmailAndPassword(auth, email, pw); alert('가입 성공!'); } catch(e) { alert(e.message); }
-  });
-
-  loginBtn.addEventListener('click', async () => {
-    const email = document.getElementById('emailInput').value;
-    const pw = document.getElementById('passwordInput').value;
-    try { await signInWithEmailAndPassword(auth, email, pw); } catch(e) { alert('로그인 실패'); }
-  });
-
-  logoutBtn.addEventListener('click', () => signOut(auth));
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user;
-      document.getElementById('authSection').classList.add('hidden');
-      document.getElementById('mainSection').classList.remove('hidden');
-      document.getElementById('userEmail').textContent = user.email;
-      loadCollection(user.uid); // 데이터 불러오기
-    } else {
-      currentUser = null;
-      document.getElementById('authSection').classList.remove('hidden');
-      document.getElementById('mainSection').classList.add('hidden');
-    }
-  });
-
-  // --- [데이터 연동: Realtime Database] ---
-  function loadCollection(uid) {
-    const dataRef = ref(database, `users/${uid}/collection`);
-    onValue(dataRef, (snapshot) => {
-      const data = snapshot.val();
-      const listArea = document.getElementById('dataList');
-      listArea.innerHTML = "";
-      if (!data) { listArea.innerHTML = "퀴즈를 풀어 명대사를 수집하세요!"; return; }
-      Object.values(data).reverse().forEach(item => {
-        const div = document.createElement('div');
-        div.className = "list-item";
-        div.innerHTML = `<strong>🎬 ${item.title}</strong><br>"${item.script}"`;
-        listArea.appendChild(div);
-      });
+    // 로그인 및 회원가입
+    signupBtn.addEventListener('click', async () => {
+      if(!emailInput.value || !passwordInput.value) return alert('이메일과 비밀번호를 입력하세요.');
+      try { await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value); alert('회원가입 완료!'); } catch(e) { alert(e.message); }
     });
-  }
 
-  async function saveToFirebase(quiz) {
-    if (!currentUser) return;
-    const dataRef = ref(database, `users/${currentUser.uid}/collection`);
-    const newItemRef = push(dataRef);
-    await set(newItemRef, quiz);
-  }
+    loginBtn.addEventListener('click', async () => {
+      try { await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value); } catch(e) { alert('로그인 실패: 정보를 확인하세요.'); }
+    });
 
-  // --- [생성형 AI & TTS 연동] ---
-  const startBtn = document.getElementById('startBtn');
-  const audioPlayer = document.getElementById('audioPlayer');
+    logoutBtn.addEventListener('click', () => signOut(auth));
 
-  startBtn.addEventListener('click', async () => {
-    try {
-      setLoading(true);
-      document.getElementById('gameReport').style.display = 'none';
-      document.getElementById('speakerIcon').classList.add('playing');
-      document.getElementById('promptText').textContent = "AI가 문제를 생성하고 성우가 연습 중입니다...";
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user; authSection.classList.add('hidden'); mainSection.classList.remove('hidden');
+        userEmail.textContent = user.email; startRealtimeListener(user.uid);
+      } else {
+        currentUser = null; authSection.classList.remove('hidden'); mainSection.classList.add('hidden'); stopRealtimeListener();
+      }
+    });
 
-      // AI API 호출 (문제 생성)
-      const chatRes = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ type: 'chat' }) });
-      const chatData = await chatRes.json();
-      currentQuiz = chatData.quiz;
-
-      // TTS API 호출 (음성 변환)
-      const ttsRes = await fetch(APPS_SCRIPT_URL, { 
-        method: 'POST', 
-        body: JSON.stringify({ type: 'tts', text: currentQuiz.script, voice: document.getElementById('voiceSelect').value }) 
+    // 리얼타임 데이터베이스 연동
+    function startRealtimeListener(uid) {
+      stopRealtimeListener();
+      setStatus('데이터 실시간 연동 중...');
+      currentItemsRef = ref(database, `users/${uid}/items`);
+      onValue(currentItemsRef, (snapshot) => {
+        globalQuizPool = snapshot.val() || {};
+        renderData(globalQuizPool);
+        setStatus('데이터 동기화 완료.');
       });
-      const ttsData = await ttsRes.json();
-
-      // 오디오 재생
-      audioPlayer.src = `data:audio/mpeg;base64,${ttsData.audioBase64}`;
-      audioPlayer.play();
-      document.getElementById('promptText').textContent = "연기 송출 중! 어떤 영화일까요?";
-      document.getElementById('userInput').disabled = false;
-      document.getElementById('submitBtn').disabled = false;
-    } catch (e) {
-      alert("연결 장애가 발생했습니다.");
-    } finally { setLoading(false); document.getElementById('speakerIcon').classList.remove('playing'); }
-  });
-
-  // 정답 확인 및 데이터 저장
-  document.getElementById('submitBtn').addEventListener('click', () => {
-    const userAns = document.getElementById('userInput').value.trim().replace(/\s+/g, '').toLowerCase();
-    const targetAns = currentQuiz.title.replace(/\s+/g, '').toLowerCase();
-    const report = document.getElementById('gameReport');
-    report.style.display = 'block';
-
-    if (userAns === targetAns || targetAns.includes(userAns)) {
-      report.innerHTML = `<h3 style="color:green">⭕ 정답입니다!</h3><p>[${currentQuiz.title}]<br>명대사가 컬렉션에 저장되었습니다.</p>`;
-      saveToFirebase(currentQuiz); // 정답일 때 데이터베이스에 저장 (데이터 연동)
-    } else {
-      report.innerHTML = `<h3 style="color:red">❌ 아쉽네요!</h3><p>정답: ${currentQuiz.title}</p>`;
     }
-    document.getElementById('userInput').disabled = true;
-    document.getElementById('submitBtn').disabled = true;
-  });
+    function stopRealtimeListener() { if (currentItemsRef) { off(currentItemsRef); currentItemsRef = null; } }
 
-  function setLoading(l) {
-    startBtn.disabled = l;
-    startBtn.textContent = l ? "🔄 준비 중..." : "🎲 AI 무작위 퀴즈 출제";
-  }
-</script>
+    // 데이터 추가 (Create)
+    addBtn.addEventListener('click', async () => {
+      if (!titleInput.value || !scriptInput.value) return alert('정답 작품명과 명대사는 필수입니다.');
+      try {
+        const itemRef = ref(database, `users/${currentUser.uid}/items`);
+        await set(push(itemRef), {
+          title: titleInput.value.trim(),
+          hint: hintInput.value.trim() || '힌트가 없습니다.',
+          script: scriptInput.value.trim(),
+          imgUrl: urlInput.value.trim() || 'https://placehold.co/400x600?text=No+Poster'
+        });
+        titleInput.value = ''; hintInput.value = ''; scriptInput.value = ''; urlInput.value = '';
+      } catch(e) { alert('데이터 저장 실패'); }
+    });
 
+    function renderData(data) {
+      dataList.innerHTML = '';
+      if(Object.keys(data).length === 0) { dataList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">문제를 추가해 주세요!</div>'; return; }
+      Object.entries(data).reverse().forEach(([id, item]) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div><strong>[${item.title}]</strong> - 💡 ${item.hint}<br><span style="font-size:13px; color:#555;">💬 "${item.script}"</span></div>
+          <div><button class="delete-btn" onclick="deleteItem('${id}')">삭제</button></div>
+        `;
+        dataList.appendChild(div);
+      });
+    }
+
+    window.deleteItem = async function(id) {
+      if(confirm('이 퀴즈를 삭제하시겠습니까?')) {
+        await remove(ref(database, `users/${currentUser.uid}/items/${id}`));
+      }
+    };
+
+    // AI 문제 출제 및 TTS 결합 엔진
+    startBtn.addEventListener('click', async () => {
+      const keys = Object.keys(globalQuizPool);
+      if (keys.length === 0) return alert('우측 문제 은행에 먼저 문제를 1개 이상 추가한 뒤 출제해 주세요!');
+
+      gameReport.style.display = 'none';
+      userInput.value = '';
+      
+      const randomKey = keys[Math.floor(Math.random() * keys.length)];
+      currentQuiz = globalQuizPool[randomKey];
+
+      try {
+        startBtn.disabled = true;
+        startBtn.textContent = '📻 AI가 가공하는 중...';
+        speakerIcon.textContent = '🤔';
+        speakerIcon.classList.add('playing');
+        quizPromptText.textContent = 'ChatGPT가 대사의 대본 감정선을 극적으로 분석하고 있습니다...';
+
+        // 1. ChatGPT 연동
+        const chatResponse = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ type: 'chat', question: `대사: "${currentQuiz.script}"` })
+        });
+        const chatData = await chatResponse.json();
+        if(!chatData.success) throw new Error(chatData.error);
+
+        // 2. TTS 연동
+        quizPromptText.textContent = '🔊 분석 완료! AI 성우가 녹음실 부스에서 명대사 연기를 시작합니다...';
+        const ttsResponse = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'tts',
+            text: chatData.answer,
+            voice: document.getElementById('voiceSelect').value
+          })
+        });
+        const ttsData = await ttsResponse.json();
+        if(!ttsData.success) throw new Error(ttsData.error);
+
+        // 오디오 정상 출력
+        audioPlayer.src = `data:audio/mpeg;base64,${ttsData.audioBase64}`;
+        speakerIcon.textContent = '📢';
+        quizPromptText.innerHTML = '<strong>🔊 성우 연기 송출 중! 들려오는 대사의 영화/드라마 제목을 맞춰보세요.</strong>';
+        audioPlayer.play();
+
+        userInput.disabled = false;
+        submitBtn.disabled = false;
+        userInput.focus();
+
+      } catch (err) {
+        console.error(err);
+        quizPromptText.textContent = '❌ 시스템 장애가 발생했습니다. OpenAI API 키 혹은 스크립트 배포 상태를 검사하세요.';
+        speakerIcon.textContent = '❌';
+      } finally {
+        startBtn.disabled = false;
+        startBtn.textContent = '🎲 내 문제 은행에서 AI 출제하기';
+        speakerIcon.classList.remove('playing');
+      }
+    });
+
+    // 정답 제출 핸들러
+    function checkAnswer() {
+      if(!currentQuiz) return;
+      const userAns = userInput.value.trim().toLowerCase().replace(/\s+/g, '');
+      const targetAns = currentQuiz.title.trim().toLowerCase().replace(/\s+/g, '');
+      gameReport.style.display = 'block';
+
+      let content = `<p><strong>🎬 대사 원문:</strong> "${currentQuiz.script}"</p><p><strong>💡 힌트:</strong> ${currentQuiz.hint}</p><img src="${currentQuiz.imgUrl}" onerror="this.src='https://placehold.co/400x600?text=No+Poster'">`;
+
+      if (userAns === targetAns || targetAns.includes(userAns) && userAns.length > 0) {
+        gameReport.innerHTML = `<h3 style="color:#10b981; margin:0 0 10px;">⭕ 정답입니다!</h3>` + content;
+      } else {
+        gameReport.innerHTML = `<h3 style="color:#ef4444; margin:0 0 10px;">❌ 오답입니다! 정답은 [${currentQuiz.title}]</h3>` + content;
+      }
+      userInput.disabled = true;
+      submitBtn.disabled = true;
+    }
+
+    submitBtn.addEventListener('click', checkAnswer);
+    userInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !userInput.disabled) checkAnswer(); });
+  </script>
 </body>
 </html>
