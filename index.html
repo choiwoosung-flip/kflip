@@ -3,118 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎙️ AI 시네마 사운드 퀴즈 & 아카이브</title>
+  <title>🎬 AI 시네마 명대사 추천 & 아카이브</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #e3f2fd, #fce4ec); font-family: Arial, sans-serif; color: #333; }
-    .container { width: min(1000px, 94%); margin: 40px auto; background: #ffffff; border-radius: 24px; padding: 28px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.16); }
-    h1 { margin: 0 0 8px; text-align: center; font-size: 28px; color: #1e88e5; }
-    .subtitle { text-align: center; color: #777; margin-bottom: 28px; font-size: 14px; }
+    body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #0f172a, #1e1b4b); font-family: 'Apple SD Gothic Neo', Arial, sans-serif; color: #f1f5f9; }
+    .container { width: min(1000px, 94%); margin: 40px auto; background: #1e293b; border-radius: 24px; padding: 28px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+    h1 { margin: 0 0 8px; text-align: center; font-size: 32px; color: #38bdf8; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 28px; font-size: 15px; }
     
-    .auth-box { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .auth-box { max-width: 420px; margin: 40px auto; display: flex; flex-direction: column; gap: 12px; background: #0f172a; padding: 24px; border-radius: 20px; }
     .app-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; }
-    .game-section { background: #f8fafc; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; }
-    .audio-room { background: #ffffff; border: 2px dashed #42a5f5; border-radius: 18px; padding: 24px; text-align: center; margin-bottom: 20px; }
-    .speaker-icon { font-size: 48px; margin-bottom: 8px; display: inline-block; transition: 0.3s; }
-    .playing { animation: pulse 1.5s infinite ease-in-out; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
     
-    .audio-controls { margin-top: 12px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-    select { height: 38px; padding: 0 8px; border: 1px solid #ddd; border-radius: 8px; background: white; font-size: 14px; }
-    .answer-zone { display: flex; gap: 10px; margin-top: 8px; }
-    .answer-zone input { flex: 1; }
-    .game-report { display: none; margin-top: 20px; padding: 16px; background: white; border: 1px solid #edf1f5; border-radius: 14px; text-align: center; }
-    .game-report img { max-width: 180px; border-radius: 8px; margin-top: 10px; }
+    .recommend-section { background: #0f172a; padding: 24px; border-radius: 20px; border: 1px solid #334155; }
+    .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    
+    .result-card { background: #1e293b; border: 1px solid #38bdf8; border-radius: 18px; padding: 20px; margin-top: 20px; display: none; }
+    .movie-title { font-size: 22px; font-weight: bold; color: #38bdf8; margin-bottom: 8px; }
+    .movie-reason { font-size: 15px; color: #cbd5e1; line-height: 1.6; margin-bottom: 16px; }
+    .quote-box { background: #1e293b; border-left: 4px solid #f43f5e; padding: 12px; border-radius: 4px; margin-bottom: 16px; font-style: italic; background: #0f172a; }
 
-    .form-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; background: #f1f5f9; padding: 16px; border-radius: 16px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 22px; padding: 14px; border-radius: 16px; background: #f7f9fb; }
-    
-    input, textarea { height: 46px; padding: 0 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; outline: none; background: white; }
-    textarea { height: 70px; padding: 10px 14px; resize: none; font-family: Arial, sans-serif; }
-    button { border: none; border-radius: 12px; padding: 0 16px; height: 46px; font-size: 14px; cursor: pointer; transition: 0.15s; font-weight: bold; }
+    .audio-controls { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #334155; padding: 10px; border-radius: 12px; }
+    select { flex: 1; height: 38px; padding: 0 8px; border: none; border-radius: 8px; background: #1e293b; color: white; }
+
+    .archive-section { background: #0f172a; padding: 24px; border-radius: 20px; border: 1px solid #334155; }
+    .list { display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; margin-top: 14px; }
+    .item { background: #1e293b; padding: 16px; border-radius: 14px; border: 1px solid #334155; position: relative; }
+    .item-title { font-weight: bold; color: #38bdf8; font-size: 16px; margin-bottom: 4px; }
+    .item-quote { font-size: 13px; color: #f43f5e; }
+
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; padding: 14px; border-radius: 16px; background: #0f172a; }
+    input { height: 46px; padding: 0 14px; border: 1px solid #334155; border-radius: 12px; font-size: 15px; outline: none; background: #1e293b; color: white; }
+    button { border: none; border-radius: 12px; padding: 0 16px; height: 46px; font-size: 15px; cursor: pointer; transition: 0.15s; font-weight: bold; }
     button:hover { transform: translateY(-2px); opacity: 0.9; }
 
-    .login-btn { background: #42a5f5; color: white; }
-    .signup-btn { background: #7e57c2; color: white; }
-    .logout-btn { background: #455a64; color: white; height: 38px; }
-    .add-btn { background: #42a5f5; color: white; }
-    .quiz-btn { background: #10b981; color: white; width: 100%; height: 50px; font-size: 16px; }
-    .refresh-btn { background: #66bb6a; color: white; width: 100%; margin-bottom: 16px; }
-    .delete-btn { background: #ef5350; color: white; height: 34px; font-size: 12px; border-radius: 6px; }
-    
-    .status { min-height: 24px; margin-bottom: 14px; color: #666; font-size: 13px; font-style: italic; text-align: center; }
-    .list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
-    .item { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; background: #f8fafc; border: 1px solid #e2e8f0; }
-    .label { font-weight: bold; margin-bottom: 6px; font-size: 14px; color: #475569; }
+    .primary-btn { background: #38bdf8; color: #0f172a; width: 100%; font-size: 16px; }
+    .delete-btn { background: #ef4444; color: white; padding: 4px 10px; height: auto; font-size: 12px; position: absolute; right: 16px; top: 16px; border-radius: 6px; }
+    .auth-btn { background: #6366f1; color: white; }
+    .logout-btn { background: #475569; color: white; height: 38px; }
     .hidden { display: none; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎙️ AI 시네마 명대사 퀴즈 & 아카이브</h1>
-    <div class="subtitle">Firebase 연동 + 로그인 활성화 + OpenAI ChatGPT & TTS 엔진 통합본</div>
+    <h1>🎬 AI 시네마 명대사 추천기</h1>
+    <div class="subtitle">나의 감정과 상황을 입력하면, ChatGPT가 어울리는 영화와 성우 연기를 선물합니다.</div>
 
     <section id="authSection">
       <div class="auth-box">
-        <h2>로그인 / 회원가입</h2>
+        <h3 style="margin-top:0; text-align:center;">시네마 인공지능 로그인</h3>
         <input id="emailInput" type="email" placeholder="이메일 주소" />
         <input id="passwordInput" type="password" placeholder="비밀번호 (6자리 이상)" />
-        <button class="login-btn" id="loginBtn">로그인</button>
-        <button class="signup-btn" id="signupBtn">회원가입</button>
+        <button class="auth-btn" id="loginBtn">로그인</button>
+        <button class="auth-btn" id="signupBtn" style="background:#475569;">회원가입</button>
       </div>
     </section>
 
     <section id="mainSection" class="hidden">
       <div class="top-bar">
-        <div class="user-info">🎬 안녕하세요, <strong id="userEmail" style="color:#1e88e5;"></strong> 회원님!</div>
+        <div>🍿 반갑습니다, <strong id="userEmail" style="color:#38bdf8;"></strong>님</div>
         <button class="logout-btn" id="logoutBtn">로그아웃</button>
       </div>
 
       <div class="app-grid">
-        <div class="game-section">
-          <div class="label" style="font-size:16px; color:#10b981; margin-bottom:12px;">🎮 QUIZ STAGE</div>
-          <button class="quiz-btn" id="startBtn">🎲 내 문제 은행에서 AI 출제하기</button>
+        <div class="recommend-section">
+          <div class="input-group">
+            <label style="color:#94a3b8; font-size:14px;">현재 내 기분이나 보고 싶은 테마를 입력하세요</label>
+            <input id="userInput" type="text" placeholder="예) 가슴이 웅장해지는 SF 영화, 위로받고 싶을 때 보는 영화" />
+            <button class="primary-btn" id="suggestBtn">✨ 맞춤 영화 및 AI 성우 연기 가져오기</button>
+          </div>
 
-          <div class="audio-room">
-            <div class="speaker-icon" id="speakerIcon">🤫</div>
-            <div id="quizPromptText" style="font-size: 14px; color: #666;">문제를 출제하면 데이터베이스에 등록된 대사를 바탕으로 AI가 연기를 시작합니다.</div>
+          <div id="resultCard" class="result-card">
+            <div class="movie-title" id="resTitle">영화 제목</div>
+            <div class="movie-reason" id="resReason">추천 이유</div>
+            <div class="quote-box" id="resScript">"명대사 구역"</div>
             
             <div class="audio-controls">
               <select id="voiceSelect">
-                <option value="echo">성우 톤: Echo (부드러운 감성파)</option>
-                <option value="onyx">성우 톤: Onyx (중후한 액션배우)</option>
-                <option value="nova">성우 톤: Nova (통통 튀는 여성조)</option>
-                <option value="alloy">성우 톤: Alloy (안정적인 목소리)</option>
+                <option value="echo">성우: Echo (차분하고 감성적인 톤)</option>
+                <option value="onyx">성우: Onyx (낮고 중후한 액션 톤)</option>
+                <option value="nova">성우: Nova (밝고 활기찬 여성 톤)</option>
+                <option value="alloy">성우: Alloy (정석적이고 안정적인 톤)</option>
               </select>
-              <audio id="audioPlayer" controls style="height:38px;"></audio>
+              <audio id="audioPlayer" controls style="height:38px; width:140px;"></audio>
             </div>
           </div>
-
-          <div>
-            <div class="label">정답 맞추기</div>
-            <div class="answer-zone">
-              <input id="userInput" type="text" placeholder="들려온 대사의 작품 제목을 쓰세요!" disabled />
-              <button class="add-btn" id="submitBtn" disabled>제출</button>
-            </div>
-          </div>
-          <div id="gameReport" class="game-report"></div>
         </div>
 
-        <div class="admin-section">
-          <div class="label" style="font-size:16px; color:#1e88e5; margin-bottom:12px;">🏛️ 나만의 퀴즈 데이터베이스 (CRUD)</div>
-          <div class="form-box">
-            <div class="form-row">
-              <input id="titleInput" type="text" placeholder="정답 작품명" />
-              <input id="hintInput" type="text" placeholder="힌트" />
-            </div>
-            <textarea id="scriptInput" placeholder="AI 성우가 실감나게 연기할 명대사를 입력하세요."></textarea>
-            <input id="urlInput" type="text" placeholder="포스터 이미지 주소(URL) - 생략 가능" />
-            <button class="add-btn" id="addBtn">문제 은행에 추가</button>
-          </div>
-
-          <button class="refresh-btn" id="refreshBtn">🔄 실시간 데이터 동기화</button>
-          <div id="status" class="status"></div>
+        <div class="archive-section">
+          <h3 style="margin-top:0; color:#38bdf8;">🏛️ 나의 시네마 아카이브</h3>
+          <div style="font-size:13px; color:#94a3b8; margin-bottom: 10px;">기록들은 실시간으로 안전하게 저장 및 동기화됩니다.</div>
           <div id="dataList" class="list"></div>
         </div>
       </div>
@@ -126,7 +103,7 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getDatabase, ref, push, set, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-    // 파이어베이스 계정 정보 바인딩
+    // 파이어베이스 설정 데이터 고정 바인딩
     const firebaseConfig = {
       apiKey: "AIzaSyCVc6dxlL8wI2q9qkJZJTFA7VFzwxqb0XY",
       authDomain: "k-flip.firebaseapp.com",
@@ -137,188 +114,130 @@
       appId: "1:866053556740:web:7718ed6285994f969a8351"
     };
 
-    // 🔗 유저님이 방금 새로 보내주신 구글 스크립트 주소로 깔끔하게 교체했습니다!
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpFUcZFRvgDSmEAPLvySVgs_W_rEr_fe5d6B7wkPs26TI8XREUOaf0tskA2j_hP8vZ/exec';
+    // 🔗 유저님이 새로 제공해주신 학교 Workspace 전용 배포 주소로 완벽 매핑했습니다!
+    const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/daehyun.hs.kr/s/AKfycbym1aQ4zKOTYVa29HgyZzx15LRVW7YTk5uIDxXWrbg8odS4DtHvF9P1PvaYcmSz4FTOfA/exec';
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
 
-    // DOM 선택자
     const authSection = document.getElementById('authSection'), mainSection = document.getElementById('mainSection');
     const emailInput = document.getElementById('emailInput'), passwordInput = document.getElementById('passwordInput');
     const loginBtn = document.getElementById('loginBtn'), signupBtn = document.getElementById('signupBtn'), logoutBtn = document.getElementById('logoutBtn'), userEmail = document.getElementById('userEmail');
-    const titleInput = document.getElementById('titleInput'), hintInput = document.getElementById('hintInput'), scriptInput = document.getElementById('scriptInput'), urlInput = document.getElementById('urlInput'), addBtn = document.getElementById('addBtn'), refreshBtn = document.getElementById('refreshBtn'), dataList = document.getElementById('dataList'), statusBox = document.getElementById('status');
-    const startBtn = document.getElementById('startBtn'), userInput = document.getElementById('userInput'), submitBtn = document.getElementById('submitBtn'), speakerIcon = document.getElementById('speakerIcon'), quizPromptText = document.getElementById('quizPromptText'), audioPlayer = document.getElementById('audioPlayer'), gameReport = document.getElementById('gameReport');
+    const userInput = document.getElementById('userInput'), suggestBtn = document.getElementById('suggestBtn'), resultCard = document.getElementById('resultCard');
+    const resTitle = document.getElementById('resTitle'), resReason = document.getElementById('resReason'), resScript = document.getElementById('resScript'), voiceSelect = document.getElementById('voiceSelect'), audioPlayer = document.getElementById('audioPlayer'), dataList = document.getElementById('dataList');
 
-    let currentUser = null, currentItemsRef = null, globalQuizPool = {}, currentQuiz = null;
+    let currentUser = null, currentItemsRef = null;
 
-    function setStatus(msg) { statusBox.textContent = msg; }
-
-    // 로그인 및 회원가입
+    // Firebase 인증 기능
     signupBtn.addEventListener('click', async () => {
-      if(!emailInput.value || !passwordInput.value) return alert('이메일과 비밀번호를 입력하세요.');
-      try { await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value); alert('회원가입 완료!'); } catch(e) { alert(e.message); }
+      if(!emailInput.value || !passwordInput.value) return alert('정보를 채워주세요.');
+      try { await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value); alert('성공적으로 가입되었습니다!'); } catch(e) { alert(e.message); }
     });
-
     loginBtn.addEventListener('click', async () => {
-      try { await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value); } catch(e) { alert('로그인 실패: 정보를 확인하세요.'); }
+      try { await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value); } catch(e) { alert('로그인 실패: 비밀번호 등을 확인하세요.'); }
     });
-
     logoutBtn.addEventListener('click', () => signOut(auth));
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user; authSection.classList.add('hidden'); mainSection.classList.remove('hidden');
-        userEmail.textContent = user.email; startRealtimeListener(user.uid);
+        userEmail.textContent = user.email.split('@')[0]; startArchiveListener(user.uid);
       } else {
-        currentUser = null; authSection.classList.remove('hidden'); mainSection.classList.add('hidden'); stopRealtimeListener();
+        currentUser = null; authSection.classList.remove('hidden'); mainSection.classList.add('hidden'); if(currentItemsRef) off(currentItemsRef);
       }
     });
 
-    // 리얼타임 데이터베이스 연동
-    function startRealtimeListener(uid) {
-      stopRealtimeListener();
-      setStatus('데이터 실시간 연동 중...');
-      currentItemsRef = ref(database, `users/${uid}/items`);
+    // 파이어베이스 데이터베이스 실시간 연동
+    function startArchiveListener(uid) {
+      currentItemsRef = ref(database, `users/${uid}/movies`);
       onValue(currentItemsRef, (snapshot) => {
-        globalQuizPool = snapshot.val() || {};
-        renderData(globalQuizPool);
-        setStatus('데이터 동기화 완료.');
+        const data = snapshot.val() || {};
+        renderArchive(data);
       });
     }
-    function stopRealtimeListener() { if (currentItemsRef) { off(currentItemsRef); currentItemsRef = null; } }
 
-    // 데이터 추가 (Create)
-    addBtn.addEventListener('click', async () => {
-      if (!titleInput.value || !scriptInput.value) return alert('정답 작품명과 명대사는 필수입니다.');
-      try {
-        const itemRef = ref(database, `users/${currentUser.uid}/items`);
-        await set(push(itemRef), {
-          title: titleInput.value.trim(),
-          hint: hintInput.value.trim() || '힌트가 없습니다.',
-          script: scriptInput.value.trim(),
-          imgUrl: urlInput.value.trim() || 'https://placehold.co/400x600?text=No+Poster'
-        });
-        titleInput.value = ''; hintInput.value = ''; scriptInput.value = ''; urlInput.value = '';
-      } catch(e) { alert('데이터 저장 실패'); }
-    });
-
-    function renderData(data) {
+    function renderArchive(data) {
       dataList.innerHTML = '';
-      if(Object.keys(data).length === 0) { dataList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">문제를 추가해 주세요!</div>'; return; }
-      Object.entries(data).reverse().forEach(([id, item]) => {
+      const entries = Object.entries(data);
+      if(entries.length === 0) { dataList.innerHTML = '<div style="color:#64748b; text-align:center; padding:20px;">비어있음 (새로운 추천을 받아보세요!)</div>'; return; }
+      entries.reverse().forEach(([id, item]) => {
         const div = document.createElement('div');
         div.className = 'item';
         div.innerHTML = `
-          <div><strong>[${item.title}]</strong> - 💡 ${item.hint}<br><span style="font-size:13px; color:#555;">💬 "${item.script}"</span></div>
-          <div><button class="delete-btn" onclick="deleteItem('${id}')">삭제</button></div>
+          <div class="item-title">🎬 ${item.title}</div>
+          <div style="font-size:13px; color:#cbd5e1; margin-bottom:4px;">${item.reason}</div>
+          <div class="item-quote">💬 "${item.script}"</div>
+          <button class="delete-btn" onclick="deleteArchive('${id}')">삭제</button>
         `;
         dataList.appendChild(div);
       });
     }
 
-    window.deleteItem = async function(id) {
-      if(confirm('이 퀴즈를 삭제하시겠습니까?')) {
-        await remove(ref(database, `users/${currentUser.uid}/items/${id}`));
+    window.deleteArchive = async function(id) {
+      if(confirm('이 추천 내역을 삭제하시겠습니까?')) {
+        await remove(ref(database, `users/${currentUser.uid}/movies/${id}`));
       }
-    };
-
-    // 🕹️ 핵심 기능: 인덱스 순서대로 살아있는 키를 탐색 요청하는 하이브리드 통신부
-    async function requestWithRetry(payloadObj) {
-      // 6개의 키 중 살아있는 녀석을 찾을 때까지 프론트앤드 레벨에서 순차 인덱스 검사 요청을 보냅니다.
-      for (let keyIdx = 0; keyIdx < 6; keyIdx++) {
-        try {
-          payloadObj.keyIndex = keyIdx; // 스크립트 측에 몇 번째 키를 쓸지 알려주는 변수 주입
-          const response = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(payloadObj)
-          });
-          const resData = await response.json();
-          if (resData.success) {
-            return resData; // 성공하면 즉시 리턴하고 종료
-          }
-          console.warn(`${keyIdx + 1}번째 키 실패, 다음 키로 우회 시도...`, resData.error);
-        } catch (e) {
-          console.error(`${keyIdx + 1}번째 키 통신 예외 발생`, e);
-        }
-      }
-      throw new Error("모든 API 키가 만료되었거나 차단되었습니다.");
     }
 
-    // AI 문제 출제 및 TTS 결합 엔진
-    startBtn.addEventListener('click', async () => {
-      const keys = Object.keys(globalQuizPool);
-      if (keys.length === 0) return alert('우측 문제 은행에 먼저 문제를 1개 이상 추가한 뒤 출제해 주세요!');
+    // OpenAI 다중 키 우회 안전 통신 모듈
+    async function requestWithRetry(payloadObj) {
+      for (let i = 0; i < 6; i++) {
+        try {
+          payloadObj.keyIndex = i;
+          const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payloadObj) });
+          const resData = await response.json();
+          if (resData.success) return resData;
+        } catch (e) { console.warn(`${i+1}번 키 통신 혼잡, 다음 키로 백업 우회 진행 중...`); }
+      }
+      throw new Error("서버 응답 오류가 발생했습니다. 구글 앱스 스크립트 배포 설정(모든 사람에게 액세스 허용)을 다시 확인해 주세요.");
+    }
 
-      gameReport.style.display = 'none';
-      userInput.value = '';
-      
-      const randomKey = keys[Math.floor(Math.random() * keys.length)];
-      currentQuiz = globalQuizPool[randomKey];
+    // 추천 및 음성합성 연동 작동부
+    suggestBtn.addEventListener('click', async () => {
+      const inputVal = userInput.value.trim();
+      if(!inputVal) return alert('어떤 분위기의 영화를 원하는지 적어주세요!');
 
       try {
-        startBtn.disabled = true;
-        startBtn.textContent = '📻 AI가 가공하는 중...';
-        speakerIcon.textContent = '🤔';
-        speakerIcon.classList.add('playing');
-        quizPromptText.textContent = 'ChatGPT가 대사의 대본 감정선을 극적으로 분석하고 있습니다...';
+        suggestBtn.disabled = true;
+        suggestBtn.textContent = '🤖 ChatGPT가 영화 엄선 중...';
+        resultCard.style.display = 'none';
 
-        // 1. ChatGPT 연동 (우회 탐색 요청)
-        const chatData = await requestWithRetry({ 
-          type: 'chat', 
-          question: `대사: "${currentQuiz.script}"` 
+        // 1. ChatGPT 추천 수신
+        const recommendRes = await requestWithRetry({ type: 'recommend', userInput: inputVal });
+        const movie = recommendRes.data;
+
+        resTitle.textContent = movie.title;
+        resReason.textContent = movie.reason;
+        resScript.textContent = `"${movie.script}"`;
+        resultCard.style.display = 'block';
+
+        // 2. 파이어베이스 실시간 보관함 데이터 밀어넣기
+        const movieRef = ref(database, `users/${currentUser.uid}/movies`);
+        await set(push(movieRef), {
+          title: movie.title,
+          reason: movie.reason,
+          script: movie.script
         });
 
-        // 2. TTS 연동 (우회 탐색 요청)
-        quizPromptText.textContent = '🔊 분석 완료! AI 성우가 녹음실 부스에서 명대사 연기를 시작합니다...';
-        const ttsData = await requestWithRetry({
+        // 3. AI 성우 TTS 스트리밍 변환 및 재생
+        suggestBtn.textContent = '🔊 AI 성우 명대사 연기 송출 중...';
+        const ttsRes = await requestWithRetry({
           type: 'tts',
-          text: chatData.answer,
-          voice: document.getElementById('voiceSelect').value
+          text: movie.script,
+          voice: voiceSelect.value
         });
 
-        // 오디오 정상 출력 바인딩
-        audioPlayer.src = `data:audio/mpeg;base64,${ttsData.audioBase64}`;
-        speakerIcon.textContent = '📢';
-        quizPromptText.innerHTML = '<strong>🔊 성우 연기 송출 중! 들려오는 대사의 영화/드라마 제목을 맞춰보세요.</strong>';
+        audioPlayer.src = `data:audio/mpeg;base64,${ttsRes.audioBase64}`;
         audioPlayer.play();
 
-        userInput.disabled = false;
-        submitBtn.disabled = false;
-        userInput.focus();
-
-      } catch (err) {
-        console.error(err);
-        quizPromptText.textContent = '❌ 시스템 장애가 발생했습니다. 구글 스크립트 코드 내부의 키 리스트나 크레딧 상태를 점검하세요.';
-        speakerIcon.textContent = '❌';
+      } catch(err) {
+        alert(err.message);
       } finally {
-        startBtn.disabled = false;
-        startBtn.textContent = '🎲 내 문제 은행에서 AI 출제하기';
-        speakerIcon.classList.remove('playing');
+        suggestBtn.disabled = false;
+        suggestBtn.textContent = '✨ 맞춤 영화 및 AI 성우 연기 가져오기';
       }
     });
-
-    // 정답 제출 핸들러
-    function checkAnswer() {
-      if(!currentQuiz) return;
-      const userAns = userInput.value.trim().toLowerCase().replace(/\s+/g, '');
-      const targetAns = currentQuiz.title.trim().toLowerCase().replace(/\s+/g, '');
-      gameReport.style.display = 'block';
-
-      let content = `<p><strong>🎬 대사 원문:</strong> "${currentQuiz.script}"</p><p><strong>💡 힌트:</strong> ${currentQuiz.hint}</p><img src="${currentQuiz.imgUrl}" onerror="this.src='https://placehold.co/400x600?text=No+Poster'">`;
-
-      if (userAns === targetAns || targetAns.includes(userAns) && userAns.length > 0) {
-        gameReport.innerHTML = `<h3 style="color:#10b981; margin:0 0 10px;">⭕ 정답입니다!</h3>` + content;
-      } else {
-        gameReport.innerHTML = `<h3 style="color:#ef4444; margin:0 0 10px;">❌ 오답입니다! 정답은 [${currentQuiz.title}]</h3>` + content;
-      }
-      userInput.disabled = true;
-      submitBtn.disabled = true;
-    }
-
-    submitBtn.addEventListener('click', checkAnswer);
-    userInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !userInput.disabled) checkAnswer(); });
   </script>
 </body>
 </html>
