@@ -277,8 +277,8 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎬 AI 시네마 명대사 추천기</h1>
-    <div class="subtitle">나의 감정과 상황을 입력하면, ChatGPT가 어울리는 영화와 성우 연기를 선물합니다.</div>
+    <h1>🎬 AI 시네마 영화 추천기</h1>
+    <div class="subtitle">나의 감정과 상황을 입력하면, ChatGPT가 엄선한 영화 줄거리와 명대사 연기를 선물합니다.</div>
 
     <section id="authSection">
       <div class="auth-box">
@@ -301,12 +301,14 @@
           <div class="input-group">
             <label style="color:#94a3b8; font-size:14px;">현재 내 기분이나 보고 싶은 테마를 자유롭게 적어주세요</label>
             <input id="userInput" type="text" placeholder="예) 가슴이 웅장해지는 SF 영화, 잔잔하게 위로받고 싶은 밤" />
-            <button class="primary-btn" id="suggestBtn">✨ 맞춤 영화 및 AI 성우 연기 가져오기</button>
+            <button class="primary-btn" id="suggestBtn">✨ 맞춤 영화 및 줄거리/대사 듣기</button>
           </div>
 
           <div id="resultCard" class="result-card">
             <div class="movie-title" id="resTitle">영화 제목</div>
-            <div class="movie-reason" id="resReason">추천 이유</div>
+            <div style="font-size:13px; color:#38bdf8; margin-bottom:4px; font-weight:bold;">📖 영화 내용 소개 (줄거리)</div>
+            <div class="movie-reason" id="resReason">줄거리 로딩 중...</div>
+            <div style="font-size:13px; color:#f43f5e; margin-bottom:4px; font-weight:bold;">💬 핵심 명대사</div>
             <div class="quote-box" id="resScript">"명대사 구역"</div>
             
             <div class="audio-controls">
@@ -335,12 +337,10 @@
   </div>
 
   <script type="module">
-    // Firebase SDK 모듈 임포트
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getDatabase, ref, push, set, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-    // 유저님의 파이어베이스 고유 식별 설정 정보
     const firebaseConfig = {
       apiKey: "AIzaSyCVc6dxlL8wI2q9qkJZJTFA7VFzwxqb0XY",
       authDomain: "k-flip.firebaseapp.com",
@@ -351,14 +351,14 @@
       appId: "1:866053556740:web:4094f6535ca3070f9a8351",
       measurementId: "G-T7DSNM2FRQ"
     };
-    // 🔗 제공해주신 구글 앱스 스크립트 전용 웹앱 엔드포인트 주소
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwvi1bj3kseP3FxDnx-2rvfSVdev9y86VdTKS5_9oWMmExi4RXB1FjYRX3DVa0DkAAI_A/exec';
+
+    // 🔗 유저님이 보내주신 가장 최신의 구글 스크립트 웹앱 주소 반영 완료!
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRUMdxOJhFxyfEtY0NXMaEK9I0WqtiE688sa5A7YM9XqDfqTPsKzxrCw0BzKsDUwR3Lw/exec';
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
 
-    // DOM 선택자 바인딩
     const authSection = document.getElementById('authSection'), mainSection = document.getElementById('mainSection');
     const emailInput = document.getElementById('emailInput'), passwordInput = document.getElementById('passwordInput');
     const loginBtn = document.getElementById('loginBtn'), signupBtn = document.getElementById('signupBtn'), logoutBtn = document.getElementById('logoutBtn'), userEmail = document.getElementById('userEmail');
@@ -371,7 +371,6 @@
       statusBox.textContent = message;
     }
 
-    // 🔐 Firebase Authentication (회원가입 / 로그인 핸들러)
     signupBtn.addEventListener('click', async () => {
       if(!emailInput.value || !passwordInput.value) return alert('이메일과 비밀번호를 입력해주세요.');
       try { 
@@ -393,14 +392,13 @@
 
     logoutBtn.addEventListener('click', () => signOut(auth));
 
-    // 유저 로그인 상태 변화 실시간 감지 리스너
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
         authSection.classList.add('hidden');
         mainSection.classList.remove('hidden');
         userEmail.textContent = user.email.split('@')[0];
-        startArchiveListener(user.uid); // 로그인 성공 시 개인 보관함 실시간 로드 시작
+        startArchiveListener(user.uid); 
       } else {
         currentUser = null;
         authSection.classList.remove('hidden');
@@ -409,12 +407,10 @@
       }
     });
 
-    // 🏛️ Firebase Realtime Database CRUD 연동 통신부
     function startArchiveListener(uid) {
       stopArchiveListener();
       setStatus('데이터 실시간 동기화 중...');
       
-      // 사용자 고유 UID 경로 하위에 데이터를 격리 저장 구조 설계
       currentItemsRef = ref(database, `users/${uid}/movies`);
       onValue(currentItemsRef, (snapshot) => {
         const data = snapshot.val() || {};
@@ -433,7 +429,6 @@
       }
     }
 
-    // 파이어베이스로부터 받아온 데이터를 화면에 렌더링 (Read)
     function renderArchive(data) {
       dataList.innerHTML = '';
       const entries = Object.entries(data);
@@ -443,7 +438,6 @@
         return; 
       }
       
-      // 최신 추천 내역이 위로 오도록 역정렬(reverse) 배치
       entries.reverse().forEach(([id, item]) => {
         const div = document.createElement('div');
         div.className = 'item';
@@ -458,7 +452,6 @@
       });
     }
 
-    // 보관함 항목 실시간 삭제 요청 (Delete)
     window.deleteArchive = async function(id) {
       const isConfirmed = confirm('이 영화 추천 기록을 아카이브에서 삭제하시겠습니까?');
       if (!isConfirmed) return;
@@ -472,50 +465,48 @@
       }
     };
 
-    // 🤖 OpenAI 6중 멀티 API 키 자동 우회 하이브리드 중계 모듈
     async function requestWithRetry(payloadObj) {
-      for (let i = 0; i < 6; i++) {
-        try {
-          payloadObj.keyIndex = i; // 몇 번째 키를 타겟팅할지 인덱스 번호 주입
-          
-          // 🛠️ 구글 스크립트 CORS 우회를 위해 헤더 옵션 구성 수정 완료
-          const response = await fetch(APPS_SCRIPT_URL, { 
-            method: 'POST', 
-            headers: {
-              'Content-Type': 'text/plain' // 중요: application/json 사용 시 보안 정책으로 구글이 거부합니다.
-            },
-            body: JSON.stringify(payloadObj) 
-          });
-          const resData = await response.json();
-          if (resData.success) return resData; // 성공하면 즉시 우회 루프 종료 후 반환
-        } catch (e) { 
-          console.warn(`${i+1}번 API 엔진 혼잡으로 인한 자동 우회 스킵 발생:`, e); 
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, { 
+          method: 'POST', 
+          headers: {
+            'Content-Type': 'text/plain'
+          },
+          body: JSON.stringify(payloadObj) 
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP 통신 실패 (상태코드: ${response.status})`);
         }
+
+        const resData = await response.json();
+        if (!resData.success) {
+          throw new Error(resData.error || "구글 스크립트 내부 처리 과정에서 에러가 발생했습니다.");
+        }
+        return resData;
+      } catch (e) {
+        console.error("실제 통신 장애 원인 로그:", e);
+        throw new Error(e.message || "구글 스크립트 웹앱과 통신하는 중 문제가 발생했습니다.");
       }
-      throw new Error("서버 통신 실패: 구글 스크립트의 배포 설정('모든 사람'에게 액세스 허용)이 올바르게 되었는지 확인해 주세요.");
     }
 
-    // ✨ 영화 추천 융합 코어 작동 버튼 액션
     suggestBtn.addEventListener('click', async () => {
       const inputVal = userInput.value.trim();
       if(!inputVal) return alert('원하시는 감정 상태나 영화 테마 키워드를 작성해 주세요!');
 
       try {
         suggestBtn.disabled = true;
-        suggestBtn.textContent = '🤖 ChatGPT가 영화를 엄선하고 있습니다...';
+        suggestBtn.textContent = '🤖 ChatGPT가 영화를 분석하고 있습니다...';
         resultCard.style.display = 'none';
 
-        // 1. ChatGPT 추천 엔진 데이터 요청 처리
         const recommendRes = await requestWithRetry({ type: 'recommend', userInput: inputVal });
         const movie = recommendRes.data;
 
-        // 화면 뷰 갱신
         resTitle.textContent = movie.title;
-        resReason.textContent = movie.reason;
+        resReason.textContent = movie.reason; // 영화의 줄거리 및 설정 소개
         resScript.textContent = `"${movie.script}"`;
         resultCard.style.display = 'block';
 
-        // 2. 파이어베이스 리얼타임 데이터베이스 자동 보관 연동 (Create)
         setStatus('추천 내역을 파이어베이스에 보관 중...');
         const movieRef = ref(database, `users/${currentUser.uid}/movies`);
         await set(push(movieRef), {
@@ -525,15 +516,16 @@
           createdAt: new Date().toLocaleString('ko-KR')
         });
 
-        // 3. OpenAI 성우 TTS 오디오 트랙 변환
-        suggestBtn.textContent = '🔊 AI 성우가 명대사를 오디오 부스에서 녹음 중...';
+        // 🔊 [성우 리딩 융합]: 스토리 소개 콘텐츠와 명대사를 엮어서 TTS 스트리밍 텍스트 생성
+        suggestBtn.textContent = '🔊 AI 성우가 줄거리와 대사를 낭독 중...';
+        const combinedText = `추천해 드리는 영화, ${movie.title}의 줄거리입니다. ${movie.reason} 이어서 영화 속 핵심 대사입니다. "${movie.script}"`;
+
         const ttsRes = await requestWithRetry({
           type: 'tts',
-          text: movie.script,
+          text: combinedText,
           voice: voiceSelect.value
         });
 
-        // 오디오 버퍼 스트리밍 바인딩 및 즉시 재생
         audioPlayer.src = `data:audio/mpeg;base64,${ttsRes.audioBase64}`;
         audioPlayer.play();
 
@@ -541,18 +533,16 @@
         alert(err.message);
       } finally {
         suggestBtn.disabled = false;
-        suggestBtn.textContent = '✨ 맞춤 영화 및 AI 성우 연기 가져오기';
+        suggestBtn.textContent = '✨ 맞춤 영화 및 줄거리/대사 듣기';
       }
     });
 
-    // 엔터 키 편의 기능 지원
     userInput.addEventListener('keydown', function(event) {
       if (event.key === 'Enter' && !suggestBtn.disabled) {
         suggestBtn.click();
       }
     });
 
-    // 문자열 보안 이스케이프 유틸리티 함수
     function escapeHTML(text) {
       return String(text)
         .replaceAll('&', '&amp;')
