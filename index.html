@@ -477,14 +477,19 @@
       for (let i = 0; i < 6; i++) {
         try {
           payloadObj.keyIndex = i; // 몇 번째 키를 타겟팅할지 인덱스 번호 주입
+          
+          // 🛠️ 구글 스크립트 CORS 우회를 위해 헤더 옵션 구성 수정 완료
           const response = await fetch(APPS_SCRIPT_URL, { 
             method: 'POST', 
+            headers: {
+              'Content-Type': 'text/plain' // 중요: application/json 사용 시 보안 정책으로 구글이 거부합니다.
+            },
             body: JSON.stringify(payloadObj) 
           });
           const resData = await response.json();
           if (resData.success) return resData; // 성공하면 즉시 우회 루프 종료 후 반환
         } catch (e) { 
-          console.warn(`${i+1}번 API 엔진 혼잡으로 인한 자동 우회 스킵 발생.`); 
+          console.warn(`${i+1}번 API 엔진 혼잡으로 인한 자동 우회 스킵 발생:`, e); 
         }
       }
       throw new Error("서버 통신 실패: 구글 스크립트의 배포 설정('모든 사람'에게 액세스 허용)이 올바르게 되었는지 확인해 주세요.");
