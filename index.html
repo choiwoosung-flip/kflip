@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎬 AI 시네마 명대사 추천 & 아카이브</title>
+  <title>🎬 AI 시네마 영화 추천 & 아카이브</title>
   <style>
     * {
       box-sizing: border-box;
@@ -95,15 +95,6 @@
       margin-bottom: 16px;
     }
 
-    .quote-box {
-      background: #0f172a;
-      border-left: 4px solid #f43f5e;
-      padding: 12px;
-      border-radius: 4px;
-      margin-bottom: 16px;
-      font-style: italic;
-    }
-
     .audio-controls {
       display: flex;
       align-items: center;
@@ -158,19 +149,10 @@
     }
 
     .item-content {
-      margin: 0 0 8px 0;
+      margin: 0;
       color: #cbd5e1;
       font-size: 14px;
       line-height: 1.5;
-    }
-
-    .item-quote {
-      font-size: 13.5px;
-      color: #f43f5e;
-      font-style: italic;
-      background: #0f172a;
-      padding: 8px;
-      border-radius: 6px;
     }
 
     .top-bar {
@@ -278,7 +260,7 @@
 <body>
   <div class="container">
     <h1>🎬 AI 시네마 영화 추천기</h1>
-    <div class="subtitle">나의 감정과 상황을 입력하면, ChatGPT가 엄선한 영화 줄거리와 명대사 연기를 선물합니다.</div>
+    <div class="subtitle">배우 이름, 원하는 감정이나 상황을 적어주시면 ChatGPT가 완벽하게 매칭되는 영화 줄거리를 찾아 낭독해 드립니다.</div>
 
     <section id="authSection">
       <div class="auth-box">
@@ -299,17 +281,15 @@
       <div class="app-grid">
         <div class="recommend-section">
           <div class="input-group">
-            <label style="color:#94a3b8; font-size:14px;">현재 내 기분이나 보고 싶은 테마를 자유롭게 적어주세요</label>
-            <input id="userInput" type="text" placeholder="예) 가슴이 웅장해지는 SF 영화, 잔잔하게 위로받고 싶은 밤" />
-            <button class="primary-btn" id="suggestBtn">✨ 맞춤 영화 및 줄거리/대사 듣기</button>
+            <label style="color:#94a3b8; font-size:14px;">특정 배우나 보고 싶은 영화 테마, 기분을 자유롭게 적어주세요</label>
+            <input id="userInput" type="text" placeholder="예) 송강호가 나오는 몰입감 넘치는 영화, 잔잔하게 위로받는 힐링물" />
+            <button class="primary-btn" id="suggestBtn">✨ 맞춤 영화 추천 및 줄거리 듣기</button>
           </div>
 
           <div id="resultCard" class="result-card">
             <div class="movie-title" id="resTitle">영화 제목</div>
             <div style="font-size:13px; color:#38bdf8; margin-bottom:4px; font-weight:bold;">📖 영화 내용 소개 (줄거리)</div>
             <div class="movie-reason" id="resReason">줄거리 로딩 중...</div>
-            <div style="font-size:13px; color:#f43f5e; margin-bottom:4px; font-weight:bold;">💬 핵심 명대사</div>
-            <div class="quote-box" id="resScript">"명대사 구역"</div>
             
             <div class="audio-controls">
               <select id="voiceSelect">
@@ -352,8 +332,8 @@
       measurementId: "G-T7DSNM2FRQ"
     };
 
-    // 🔗 유저님이 보내주신 가장 최신의 구글 스크립트 웹앱 주소 반영 완료!
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRUMdxOJhFxyfEtY0NXMaEK9I0WqtiE688sa5A7YM9XqDfqTPsKzxrCw0BzKsDUwR3Lw/exec';
+    // 🔗 새로 제공해주신 구글 스크립트 웹앱 URL 반영 완료!
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYoYD_aSSlt2csi4usZ9-hZQ_DkdtfCvuWQk8EKz9BteTYSVq63tL-iIygn2uVj0zmxg/exec';
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -363,7 +343,7 @@
     const emailInput = document.getElementById('emailInput'), passwordInput = document.getElementById('passwordInput');
     const loginBtn = document.getElementById('loginBtn'), signupBtn = document.getElementById('signupBtn'), logoutBtn = document.getElementById('logoutBtn'), userEmail = document.getElementById('userEmail');
     const userInput = document.getElementById('userInput'), suggestBtn = document.getElementById('suggestBtn'), resultCard = document.getElementById('resultCard');
-    const resTitle = document.getElementById('resTitle'), resReason = document.getElementById('resReason'), resScript = document.getElementById('resScript'), voiceSelect = document.getElementById('voiceSelect'), audioPlayer = document.getElementById('audioPlayer'), dataList = document.getElementById('dataList'), statusBox = document.getElementById('status');
+    const resTitle = document.getElementById('resTitle'), resReason = document.getElementById('resReason'), voiceSelect = document.getElementById('voiceSelect'), audioPlayer = document.getElementById('audioPlayer'), dataList = document.getElementById('dataList'), statusBox = document.getElementById('status');
 
     let currentUser = null, currentItemsRef = null;
 
@@ -434,7 +414,7 @@
       const entries = Object.entries(data);
       
       if(entries.length === 0) { 
-        dataList.innerHTML = '<div class="empty">아직 저장된 추천 영화가 없습니다. 왼쪽에 무드를 입력해 보세요!</div>'; 
+        dataList.innerHTML = '<div class="empty">아직 저장된 추천 영화가 없습니다. 왼쪽에 무드나 배우를 입력해 보세요!</div>'; 
         return; 
       }
       
@@ -445,7 +425,6 @@
         div.innerHTML = `
           <div class="item-title">🎬 ${escapeHTML(item.title || '')}</div>
           <p class="item-content">${escapeHTML(item.reason || '')}</p>
-          <div class="item-quote">💬 "${escapeHTML(item.script || '')}"</div>
           <button class="delete-btn" onclick="deleteArchive('${id}')">삭제</button>
         `;
         dataList.appendChild(div);
@@ -491,20 +470,22 @@
     }
 
     suggestBtn.addEventListener('click', async () => {
-      const inputVal = userInput.value.trim();
-      if(!inputVal) return alert('원하시는 감정 상태나 영화 테마 키워드를 작성해 주세요!');
+      let inputVal = userInput.value.trim();
+      if(!inputVal) return alert('원하시는 배우 이름이나 영화 테마 키워드를 작성해 주세요!');
+
+      // 💡 [배우 이탈 방지 장치]: 프론트단에서도 배우 이름을 강하게 고정하도록 지시 조건을 합칩니다.
+      const enrichedInput = inputVal + " (반드시 입력된 특정 배우가 실제 공식 필모그래피상 출연한 영화로만 엄선해줘. 출연 안 한 엉뚱한 영화 매칭은 절대 불가야.)";
 
       try {
         suggestBtn.disabled = true;
         suggestBtn.textContent = '🤖 ChatGPT가 영화를 분석하고 있습니다...';
         resultCard.style.display = 'none';
 
-        const recommendRes = await requestWithRetry({ type: 'recommend', userInput: inputVal });
+        const recommendRes = await requestWithRetry({ type: 'recommend', userInput: enrichedInput });
         const movie = recommendRes.data;
 
         resTitle.textContent = movie.title;
-        resReason.textContent = movie.reason; // 영화의 줄거리 및 설정 소개
-        resScript.textContent = `"${movie.script}"`;
+        resReason.textContent = movie.reason; 
         resultCard.style.display = 'block';
 
         setStatus('추천 내역을 파이어베이스에 보관 중...');
@@ -512,13 +493,11 @@
         await set(push(movieRef), {
           title: movie.title,
           reason: movie.reason,
-          script: movie.script,
           createdAt: new Date().toLocaleString('ko-KR')
         });
 
-        // 🔊 [성우 리딩 융합]: 스토리 소개 콘텐츠와 명대사를 엮어서 TTS 스트리밍 텍스트 생성
-        suggestBtn.textContent = '🔊 AI 성우가 줄거리와 대사를 낭독 중...';
-        const combinedText = `추천해 드리는 영화, ${movie.title}의 줄거리입니다. ${movie.reason} 이어서 영화 속 핵심 대사입니다. "${movie.script}"`;
+        suggestBtn.textContent = '🔊 AI 성우가 줄거리를 낭독 중...';
+        const combinedText = `추천해 드리는 영화, ${movie.title}의 줄거리입니다. ${movie.reason}`;
 
         const ttsRes = await requestWithRetry({
           type: 'tts',
@@ -533,7 +512,7 @@
         alert(err.message);
       } finally {
         suggestBtn.disabled = false;
-        suggestBtn.textContent = '✨ 맞춤 영화 및 줄거리/대사 듣기';
+        suggestBtn.textContent = '✨ 맞춤 영화 및 줄거리 듣기';
       }
     });
 
